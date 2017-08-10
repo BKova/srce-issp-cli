@@ -1,0 +1,30 @@
+{
+  "name": "srce-issp-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cli.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BKova/srce-issp-cli.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BKova/srce-issp-cli/issues"
+  },
+  "homepage": "https://github.com/BKova/srce-issp-cli#readme",
+  "devDependencies": {
+    "eslint": "^4.4.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "locus": "^2.0.1"
+  },
+  "dependencies": {
+    "inquirer": "^3.2.1",
+    "srce-issp-client": "^1.0.3",
+    "table": "^4.0.1"
+  }
+}
