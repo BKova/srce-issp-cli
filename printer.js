@@ -13,7 +13,7 @@ module.exports = {
 };
 
 function printSudent(userData) {
-  userData = Object.assign({}, userData, { balance: toCurrency(userData.balance) });
+  userData = formatStudent(userData);
   const columns = { 3: { alignment: 'right' } };
   const header = map(['Name', 'Surname', 'OIB', 'Balance'], chalk.bold.red);
   const row = toArray(userData, ['name', 'lastname', 'oib', 'balance']);
@@ -57,6 +57,17 @@ function printDetails(recipe) {
   return output;
 }
 
+function formatStudent(userData) {
+  const balance = toCurrency(userData.balance);
+
+  return {
+    name: chalk.white.bold(userData.name),
+    lastname: chalk.green.bold(userData.lastname),
+    oib: chalk.magenta.bold(userData.oib),
+    balance: chalk.blue.bold(balance),
+  };
+}
+
 function formatRecipe(recipe, index = 0) {
   const time = fecha.format(recipe.time, 'DD/MM/YYYY');
   const subvention = toCurrency(recipe.subvention);
@@ -64,11 +75,11 @@ function formatRecipe(recipe, index = 0) {
 
   return {
     id: recipe.id,
-    tableId: index,
-    time,
-    subvention,
-    price,
-    restaurant: recipe.restaurant,
+    tableId: chalk.yellow.bold(index),
+    time: chalk.magenta.bold(time),
+    subvention: chalk.blue.bold(subvention),
+    price: chalk.green.bold(price),
+    restaurant: chalk.white.bold(recipe.restaurant),
   };
 }
 
@@ -79,11 +90,11 @@ function formatItems(recipe) {
     const subvention = toCurrency(dish.subvention);
 
     return {
-      name: dish.name,
-      quantity: dish.quantity,
-      price,
-      totalPrice,
-      subvention,
+      name: chalk.white.bold(dish.name),
+      quantity: chalk.cyan.bold(dish.quantity),
+      price: chalk.blue.bold(price),
+      totalPrice: chalk.magenta.bold(totalPrice),
+      subvention: chalk.green.bold(subvention),
     };
   });
 }
