@@ -2,7 +2,7 @@
 const inquirer = require('inquirer');
 const whilePromise = require('while-promise')(Promise);
 const Client = require('srce-issp-client');
-const { printSudent, printRecipes, printDetails } = require('./printer');
+const { printSudent, printReceipts, printDetails } = require('./printer');
 
 const client = new Client();
 
@@ -16,7 +16,7 @@ const toNumber = str => (!isNaN(str) ? Number(str) : null);
   const limitInput = {
     type: 'input',
     name: 'limit',
-    message: 'Please enter maximum age of recipes (in days):',
+    message: 'Please enter maximum age of receipts (in days):',
     validate: input => !!toNumber(input) || 'Please input a number!',
   };
 
@@ -25,19 +25,19 @@ const toNumber = str => (!isNaN(str) ? Number(str) : null);
     .then(client => console.log(printSudent(client.user)))
     .then(() => inquirer.prompt(limitInput))
     .then(({ limit }) => Number(limit))
-    .then(limit => client.getRecipes(limit))
-    .then((recipes) => {
-      console.log(printRecipes(recipes));
-      return recipes;
+    .then(limit => client.getReceipts(limit))
+    .then((receipts) => {
+      console.log(printReceipts(receipts));
+      return receipts;
     })
-    .then(recipes => showDetails(recipes));
+    .then(receipts => showDetails(receipts));
 }());
 
-function showDetails(recipes) {
+function showDetails(receipts) {
   const question = {
     type: 'input',
     name: 'index',
-    message: 'Enter No. of recipe (or type "exit" to quit):',
+    message: 'Enter No. of receipt (or type "exit" to quit):',
     validate(input) {
       if (input === 'exit') process.exit();
       const number = toNumber(input);
@@ -51,7 +51,7 @@ function showDetails(recipes) {
     () => true,
     () => inquirer.prompt(question)
       .then(({ index }) => toNumber(index))
-      .then(index => client.getRecipeDetails(recipes[index]))
-      .then(recipe => console.log(printDetails(recipe))),
+      .then(index => client.getReceiptDetails(receipts[index]))
+      .then(receipt => console.log(printDetails(receipt))),
   );
 }
