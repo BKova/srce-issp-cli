@@ -1,31 +1,57 @@
+#! /usr/bin/env node
 const inquirer = require('inquirer');
+const whilePromise = require('while-promise')(Promise);
 const Client = require('srce-issp-client');
-const { table } = require('table');
+const { printSudent, printRecipes, printDetails } = require('./printer');
 
 const client = new Client();
 
-const map = (col, fn) => [].map.call(col, fn);
-const checkLenght = text => ((text.length < 50) ? text : 'Value is too long');
-const createQuestion = (type, name, message) => ({ type, name, message });
-const getKeys = Object.keys;
+const toNumber = str => (!isNaN(str) ? Number(str) : null);
 
 (function initCommand() {
-  inquirer.prompt(
-    [createQuestion('input', 'username', 'Please enter your username:'),
-      createQuestion('password', 'password', 'Please enter you password:')])
+  const questions = [
+    { type: 'input', name: 'username', message: 'Please enter your username:' },
+    { type: 'password', name: 'password', message: 'Please enter your password:', mask: '*' },
+  ];
+  const limitInput = {
+    type: 'input',
+    name: 'limit',
+    message: 'Please enter maximum age of recipes (in days):',
+    validate: input => !!toNumber(input) || 'Please input a number!',
+  };
+
+  inquirer.prompt(questions)
     .then(({ username, password }) => client.login(username, password))
-    .then(client => outputSudentInfo(client.user))
-    .then(() => inquirer.prompt(createQuestion('input', 'daysLimit', 'What is maximum age of recipes (in days):')))
-    .then(Number)
-    .then(dayLimit => client.getRecipes(dayLimit))
-    .then(recipes => outputRecipes(recipes));
+    .then(client => console.log(printSudent(client.user)))
+    .then(() => inquirer.prompt(limitInput))
+    .then(({ limit }) => Number(limit))
+    .then(limit => client.getRecipes(limit))
+    .then((recipes) => {
+      console.log(printRecipes(recipes));
+      return recipes;
+    })
+    .then(recipes => showDetails(recipes));
 }());
 
-function outputSudentInfo(userData) {
-  const userTable = map(getKeys(userData), key => [key, checkLenght(userData[key])]);
-  console.log(table(userTable));
-}
+function showDetails(recipes) {
+  const question = {
+    type: 'input',
+    name: 'index',
+    message: 'Enter No. of recipe (or type "exit" to quit):',
+    validate(input) {
+      if (input === 'exit') process.exit();
+      const number = toNumber(input);
+      return (typeof number !== 'number')
+        ? 'Please input a number!'
+        : true;
+    },
+  };
 
-function outputRecipes(recipes) {
-  eval(require('locus'));
+  return whilePromise(
+    () => true,
+    () => inquirer.prompt(question)
+      .then(({ index }) => toNumber(index))
+      .then(index => client.getRecipeDetails(recipes[index]))
+      .then(recipe => console.log(printDetails(recipe))),
+  );
 }
